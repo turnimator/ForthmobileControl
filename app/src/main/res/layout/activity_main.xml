@@ -25,49 +25,78 @@
             android:max="255"
             android:progress="3" />
 
+        <Button
+            android:id="@+id/buttonForward"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:text="Forward" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="visible">
+
             <Button
-                android:id="@+id/buttonForward"
-                android:layout_width="match_parent"
+                android:id="@+id/buttonLeft"
+                android:layout_width="0dp"
                 android:layout_height="36dp"
                 android:layout_weight="1"
-                android:text="Forward" />
+                android:text="Left" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <Button
+                android:id="@+id/buttonStop"
+                android:layout_width="0dp"
+                android:layout_height="36dp"
+                android:layout_weight="1"
+                android:text="STOP" />
+
+
+            <Button
+                android:id="@+id/buttonRight"
+                android:layout_width="0dp"
+                android:layout_height="36dp"
+                android:layout_weight="1"
+                android:text="Right" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/buttonBackward"
+            android:layout_width="match_parent"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:text="Backward" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/editTextURI"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:visibility="visible">
+                android:ems="10"
+                android:inputType="textUri"
+                android:text="192.168.100.5" />
 
-                <Button
-                    android:id="@+id/buttonLeft"
-                    android:layout_width="0dp"
-                    android:layout_height="36dp"
-                    android:layout_weight="1"
-                    android:text="Left" />
+            <EditText
+                android:id="@+id/editTextPortNumber"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="number"
+                android:text="8080" />
 
-                <Button
-                    android:id="@+id/buttonStop"
-                    android:layout_width="0dp"
-                    android:layout_height="36dp"
-                    android:layout_weight="1"
-                    android:text="STOP" />
+            <ToggleButton
+                android:id="@+id/toggleButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ToggleButton" />
 
-
-                <Button
-                    android:id="@+id/buttonRight"
-                    android:layout_width="0dp"
-                    android:layout_height="36dp"
-                    android:layout_weight="1"
-                    android:text="Right" />
-
-            </LinearLayout>
-            <Button
-                android:id="@+id/buttonBackward"
-                android:layout_width="match_parent"
-                android:layout_height="36dp"
-                android:layout_weight="1"
-                android:text="Backward" />
-
+        </LinearLayout>
 
     </LinearLayout>
 

@@ -17,20 +17,37 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.SeekBar;
 import android.widget.Spinner;
+import android.widget.ToggleButton;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
+    EditText textURI;
+    EditText textPort;
+    ToggleButton buttonConnect;
     Button buttonLeft, buttonRight, buttonForward, buttonBackward, buttonStop;
     MultiAutoCompleteTextView forthView;
     ArrayList<String> words = new ArrayList<>();
     SeekBar seekBarSpeed;
+    ForthmobileModel model = new ForthmobileModel();
+    String changedText = "";
+    int start = 0;
+    int count = 0;
+    int length = 0;
+    int oldLength = 0;
+    int newlength = 0;
+
+    void logTextChange(String tag, String message) {
+        Log.i(tag, "\"" + message + "\" start:" + start + " count:" + count + " length:" + length + " oldlength:" + oldLength + " newlength:" + newlength + " changedText:\"" + changedText + "\"");
+    }
 
     void addAll() {
         words.add("IMMEDIATE");
@@ -283,6 +300,9 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        textURI = findViewById(R.id.editTextURI);
+        textPort = findViewById(R.id.editTextPortNumber);
+        buttonConnect = findViewById(R.id.toggleButton);
         buttonLeft = findViewById(R.id.buttonLeft);
         buttonRight = findViewById(R.id.buttonRight);
         buttonForward = findViewById(R.id.buttonForward);
@@ -290,6 +310,17 @@ public class MainActivity extends AppCompatActivity {
         buttonStop = findViewById(R.id.buttonStop);
         forthView = findViewById(R.id.multiAutoCompleteTextView);
         seekBarSpeed = findViewById(R.id.seekBarSpeed);
+
+        buttonConnect.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (model.isConnected()) {
+                    model.disconnect();
+                } else {
+                    model.connect(textURI.getText().toString(), Integer.parseInt(textPort.getText().toString()));
+                }
+            }
+        });
 
         ArrayAdapter<String> ad = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, words);
         forthView.setAdapter(ad);
@@ -301,7 +332,7 @@ public class MainActivity extends AppCompatActivity {
 
                 for (int i = cursor - 2; i > 0; i--) { // words are at least one character long. Not fool proof.
                     if (Character.isWhitespace(text.charAt(i))) {
-                        Log.i("TokenStart", text.toString() + " " + i);
+                        // Log.i("TokenStart", text.toString() + " " + i);
                         return i + 1;
                     }
                 }
@@ -310,7 +341,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public int findTokenEnd(CharSequence text, int cursor) {
-                Log.i("TokenEnd", text.toString() + " " + cursor);
+                // Log.i("TokenEnd", text.toString() + " " + cursor);
                 for (int i = cursor - 1; i > 0; i--) {
                     if (!Character.isWhitespace(text.charAt(i))) {
                         return i;
@@ -321,25 +352,45 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public CharSequence terminateToken(CharSequence text) {
-                Log.i("TerminateToken", text.toString());
+                // Log.i("TerminateToken", text.toString());
                 return text;
             }
         });
+
+
         forthView.addTextChangedListener(new TextWatcher() {
 
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
+            public void beforeTextChanged(CharSequence s, int pstart, int pcount, int pafter) {
+                changedText = s.toString().substring(pstart);
+                start = pstart;
+                count = pcount;
+                newlength = pafter;
+                logTextChange("beforeTextChanged", s.toString());
             }
 
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
+            public void onTextChanged(CharSequence es, int pstart, int pbefore, int pcount) {
+                changedText = es.toString().substring(pstart);
+                start = pstart;
+                oldLength = pbefore;
+                count = pcount;
+                logTextChange("onTextChanged", es.toString());
             }
 
             @Override
-            public void afterTextChanged(Editable s) {
+            public void afterTextChanged(Editable es) {
+                String s = es.toString();
 
+                logTextChange("afterTextChanged", s);
+                if (changedText.endsWith("\n")) {
+                    for (int i = start; i > 0; i--) {
+                        if (s.charAt(i) == '\n') {
+                            Log.i("SENDING", s.substring(i));
+                            break;
+                        }
+                    }
+                }
             }
         });
 

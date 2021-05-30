@@ -314,9 +314,11 @@ public class MainActivity extends AppCompatActivity {
         buttonConnect.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (model.isConnected()) {
+                if (isChecked && model.isConnected()) {
+                    Log.i("onCheckedChanged", "disconnecting");
                     model.disconnect();
                 } else {
+                    Log.i("onCheckedChanged", "connecting");
                     model.connect(textURI.getText().toString(), Integer.parseInt(textPort.getText().toString()));
                 }
             }
@@ -387,6 +389,7 @@ public class MainActivity extends AppCompatActivity {
                     for (int i = start; i > 0; i--) {
                         if (s.charAt(i) == '\n') {
                             Log.i("SENDING", s.substring(i));
+                            model.send(s.substring(i), forthView, start + newlength);
                             break;
                         }
                     }

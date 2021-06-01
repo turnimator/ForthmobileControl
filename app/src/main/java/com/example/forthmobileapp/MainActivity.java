@@ -36,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     ToggleButton buttonConnect;
     Button buttonLeft, buttonRight, buttonForward, buttonBackward, buttonStop;
     MultiAutoCompleteTextView forthView;
+    EditText responseView;
     ArrayList<String> words = new ArrayList<>();
     SeekBar seekBarSpeed;
 
@@ -308,6 +309,7 @@ public class MainActivity extends AppCompatActivity {
         buttonBackward = findViewById(R.id.buttonBackward);
         buttonStop = findViewById(R.id.buttonStop);
         forthView = findViewById(R.id.multiAutoCompleteTextView);
+        responseView = findViewById(R.id.editTextTextMultiLine);
         seekBarSpeed = findViewById(R.id.seekBarSpeed);
         buttonConnect = findViewById(R.id.toggleButton);
 
@@ -379,12 +381,14 @@ public class MainActivity extends AppCompatActivity {
                 String s = es.toString();
 
                 logTextChange("afterTextChanged", s);
+                if ( ! forthView.isEnabled()){
+                    return; // Prevent running in circles
+                }
                 if (changedText.endsWith("\n")) {
                     for (int i = start - 1; i > 0; i--) {
                         if (s.charAt(i) == '\n') {
                             Log.i("SENDING", s.substring(i));
-                            String response = ForthmobileModel.send(textURI.getText().toString(), Integer.parseInt(textPort.getText().toString()), s.substring(i), forthView);
-                            forthView.append(response);
+                            String response = ForthmobileModel.send(textURI.getText().toString(), Integer.parseInt(textPort.getText().toString()), s.substring(i), responseView);
                             break;
                         }
                     }

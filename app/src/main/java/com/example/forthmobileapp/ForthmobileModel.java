@@ -1,6 +1,7 @@
 package com.example.forthmobileapp;
 
 import android.util.Log;
+import android.widget.EditText;
 import android.widget.MultiAutoCompleteTextView;
 
 import org.apache.commons.net.telnet.TelnetClient;
@@ -26,7 +27,7 @@ public class ForthmobileModel {
     static  BufferedReader br = null;
     final static String[] reply = {""};
 
-    public static String send(String host, int port, String text, MultiAutoCompleteTextView view) {
+    public static String send(String host, int port, String text, EditText view) {
 
         connector = new Thread(new Runnable() {
             @Override
@@ -41,6 +42,8 @@ public class ForthmobileModel {
                     os = socket.getOutputStream();
                 } catch (IOException e) {
                     e.printStackTrace();
+                    view.setText("Error:" + e.getMessage());
+                    return;
                 }
                 out = new PrintWriter(os);
 
@@ -68,15 +71,15 @@ public class ForthmobileModel {
                 String s = "";
                 reply[0] = "";
                 while (s != null) {
-
                     try {
                         s = br.readLine();
                     } catch (IOException e) {
                         System.out.println(e.getCause());
                     }
-                   // view.append(s);
-                    reply[0] += s;
-                    Log.i("RECV", s);
+                   if (s != null) {
+                       reply[0] += s + "\n";
+                       Log.i("RECV", s);
+                   }
                 }
             }
         });
@@ -102,7 +105,7 @@ public class ForthmobileModel {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        view.append(reply[0]);
+        view.setText(reply[0] + view.getText());
         return reply[0];
     }
 

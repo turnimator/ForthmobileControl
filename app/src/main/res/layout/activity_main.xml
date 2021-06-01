@@ -15,7 +15,18 @@
             android:id="@+id/multiAutoCompleteTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="1 1 + ." />
+            android:maxHeight="600dp" />
+            android:text=" 1 1 + ." />
+
+        <EditText
+            android:id="@+id/editTextTextMultiLine"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:duplicateParentState="false"
+            android:ems="10"
+            android:gravity="start|top"
+            android:inputType="none"
+            android:maxHeight="600dp" />
 
         <SeekBar
             android:id="@+id/seekBarSpeed"

@@ -1,4 +1,5 @@
 package com.example.forthmobileapp;
+
 import android.util.Log;
 import android.widget.MultiAutoCompleteTextView;
 
@@ -10,89 +11,108 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.Inet4Address;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketAddress;
 
 public class ForthmobileModel {
-    static TelnetClient _client = new TelnetClient();
-    String _host;
-    int _port;
-    char[] buffer = new char[32768];
+    static Socket socket = new Socket();
+    MultiAutoCompleteTextView _view;
+    static Thread receiver;
+    static Thread sender;
+    static Thread connector;
+    static PrintWriter out = null;
+    static  BufferedReader br = null;
+    final static String[] reply = {""};
 
-    Runnable receiver;
+    public static String send(String host, int port, String text, MultiAutoCompleteTextView view) {
 
-    public void connect(String host, int port){
-        _host = host;
-        _port = port;
-        Runnable sender = new Runnable() {
+        connector = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    _client.connect(host, port);
+                    socket.connect(new InetSocketAddress(host, port));
                 } catch (IOException e) {
                     e.printStackTrace();
-                    Log.e("Connect failed", e.toString());
                 }
+                OutputStream os = null;
+                try {
+                    os = socket.getOutputStream();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                out = new PrintWriter(os);
+
+                InputStreamReader ir = null;
+                try {
+                    ir = new InputStreamReader(socket.getInputStream());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                br = new BufferedReader(ir);
             }
-        };
-        new Thread(sender).start();
-    }
+        });
 
-    public void send(String text, MultiAutoCompleteTextView receiverWidget, int whereToReceiveReply) {
-
-        new Thread(new Runnable() {
+        sender = new Thread(new Runnable() {
             @Override
             public void run() {
-                if (_client.getOutputStream() == null){
+                    out.println(text);
+                    out.flush();
+            }
+        });
+
+        receiver = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String s = "";
+                reply[0] = "";
+                while (s != null) {
+
                     try {
-                        _client.connect(_host, _port);
+                        s = br.readLine();
                     } catch (IOException e) {
-                        e.printStackTrace();
-                        return;
+                        System.out.println(e.getCause());
                     }
+                   // view.append(s);
+                    reply[0] += s;
+                    Log.i("RECV", s);
                 }
-                OutputStream out = _client.getOutputStream();
-                if (out == null){
-                    throw new NullPointerException("client.getOutputStream() returned null");
-                }
-                PrintWriter pout = new PrintWriter(out);
-                pout.println(text);
-
             }
-        }).start();
-
-        Runnable receiver = new Runnable() {
-            @Override
-            public void run() {
-
-                OutputStream out = _client.getOutputStream();
-                if (out == null){
-                    throw new NullPointerException("client.getOutputStream() returned null");
-                }
-                PrintWriter pout = new PrintWriter(out);
-                pout.println(text);
-
-                InputStream is = _client.getInputStream();
-                InputStreamReader ir = new InputStreamReader(is);
-                BufferedReader br = new BufferedReader(ir);
-                try {
-                   while (br.read(buffer) != -1){
-                       receiverWidget.append(new String(buffer));
-                   }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
+        });
+        if ( ! socket.isConnected()) {
+            connector.start();
+            try {
+                connector.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-        };
-        new Thread(receiver).start();
+        }
+        receiver.start();
+        sender.start();
+
+        try {
+            sender.join(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            receiver.join(4000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        view.append(reply[0]);
+        return reply[0];
     }
 
     public boolean isConnected() {
-        return _client.isConnected();
+        return socket.isConnected();
     }
 
     public void disconnect() {
         try {
-            _client.disconnect();
+            socket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

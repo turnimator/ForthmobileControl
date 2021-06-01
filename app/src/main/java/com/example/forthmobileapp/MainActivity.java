@@ -32,12 +32,13 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
     EditText textURI;
     EditText textPort;
+    EditText textMessage;
     ToggleButton buttonConnect;
     Button buttonLeft, buttonRight, buttonForward, buttonBackward, buttonStop;
     MultiAutoCompleteTextView forthView;
     ArrayList<String> words = new ArrayList<>();
     SeekBar seekBarSpeed;
-    ForthmobileModel model = new ForthmobileModel();
+
     String changedText = "";
     int start = 0;
     int count = 0;
@@ -293,8 +294,6 @@ public class MainActivity extends AppCompatActivity {
         words.add("'TIB");
     }
 
-    boolean blockOnTextChange = false;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -302,7 +301,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         textURI = findViewById(R.id.editTextURI);
         textPort = findViewById(R.id.editTextPortNumber);
-        buttonConnect = findViewById(R.id.toggleButton);
+        textMessage = findViewById(R.id.editTextConnectMessage);
         buttonLeft = findViewById(R.id.buttonLeft);
         buttonRight = findViewById(R.id.buttonRight);
         buttonForward = findViewById(R.id.buttonForward);
@@ -310,23 +309,18 @@ public class MainActivity extends AppCompatActivity {
         buttonStop = findViewById(R.id.buttonStop);
         forthView = findViewById(R.id.multiAutoCompleteTextView);
         seekBarSpeed = findViewById(R.id.seekBarSpeed);
-
-        buttonConnect.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked && model.isConnected()) {
-                    Log.i("onCheckedChanged", "disconnecting");
-                    model.disconnect();
-                } else {
-                    Log.i("onCheckedChanged", "connecting");
-                    model.connect(textURI.getText().toString(), Integer.parseInt(textPort.getText().toString()));
-                }
-            }
-        });
+        buttonConnect = findViewById(R.id.toggleButton);
 
         ArrayAdapter<String> ad = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, words);
         forthView.setAdapter(ad);
         addAll();
+
+        buttonConnect.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+            }
+        });
 
         forthView.setTokenizer(new MultiAutoCompleteTextView.Tokenizer() {
             @Override
@@ -368,7 +362,7 @@ public class MainActivity extends AppCompatActivity {
                 start = pstart;
                 count = pcount;
                 newlength = pafter;
-                logTextChange("beforeTextChanged", s.toString());
+               // logTextChange("beforeTextChanged", s.toString());
             }
 
             @Override
@@ -377,7 +371,7 @@ public class MainActivity extends AppCompatActivity {
                 start = pstart;
                 oldLength = pbefore;
                 count = pcount;
-                logTextChange("onTextChanged", es.toString());
+               // logTextChange("onTextChanged", es.toString());
             }
 
             @Override
@@ -386,14 +380,16 @@ public class MainActivity extends AppCompatActivity {
 
                 logTextChange("afterTextChanged", s);
                 if (changedText.endsWith("\n")) {
-                    for (int i = start; i > 0; i--) {
+                    for (int i = start - 1; i > 0; i--) {
                         if (s.charAt(i) == '\n') {
                             Log.i("SENDING", s.substring(i));
-                            model.send(s.substring(i), forthView, start + newlength);
+                            String response = ForthmobileModel.send(textURI.getText().toString(), Integer.parseInt(textPort.getText().toString()), s.substring(i), forthView);
+                            forthView.append(response);
                             break;
                         }
                     }
                 }
+
             }
         });
 

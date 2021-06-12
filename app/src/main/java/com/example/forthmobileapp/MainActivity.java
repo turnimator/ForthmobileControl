@@ -32,7 +32,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
     EditText textURI;
     EditText textPort;
-    EditText textMessage;
+
     ToggleButton buttonConnect;
     Button buttonLeft, buttonRight, buttonForward, buttonBackward, buttonStop;
     MultiAutoCompleteTextView forthView;
@@ -302,7 +302,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         textURI = findViewById(R.id.editTextURI);
         textPort = findViewById(R.id.editTextPortNumber);
-        textMessage = findViewById(R.id.editTextConnectMessage);
+
         buttonLeft = findViewById(R.id.buttonLeft);
         buttonRight = findViewById(R.id.buttonRight);
         buttonForward = findViewById(R.id.buttonForward);
